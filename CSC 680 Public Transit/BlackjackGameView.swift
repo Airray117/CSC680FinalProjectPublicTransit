@@ -13,7 +13,8 @@ class BlackjackGame: ObservableObject
     @Published var dealerHand: [Int] = []
     @Published var gameStatus: String = ""
 
-    init() {
+    init()
+    {
         newGame()
     }
 
