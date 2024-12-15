@@ -1,21 +1,31 @@
 import SwiftUI
 
-struct MuniArrivalsView: View {
+struct MuniArrivalsView: View
+{
     @ObservedObject var manager: MuniTransitManager
 
-    var body: some View {
-        NavigationView {
-            VStack {
-                if manager.isFetchingData {
+    var body: some View
+    {
+        NavigationView
+        {
+            VStack
+            {
+                if manager.isFetchingData
+                {
                     ProgressView("Fetching Muni arrival times...")
-                } else if manager.arrivalTimes.isEmpty {
+                } else if manager.arrivalTimes.isEmpty
+                {
                     Text("No Muni stops found near the selected location.")
                         .font(.headline)
                         .multilineTextAlignment(.center)
                         .padding()
-                } else {
-                    List(manager.arrivalTimes) { arrival in
-                        VStack(alignment: .leading, spacing: 5) {
+                }
+                else
+                {
+                    List(manager.arrivalTimes)
+                    { arrival in
+                        VStack(alignment: .leading, spacing: 5)
+                        {
                             Text("Stop: \(arrival.stopName)")
                                 .font(.headline)
                             Text("Next Bus Arrival: \(arrival.time) minutes")
@@ -32,8 +42,10 @@ struct MuniArrivalsView: View {
 }
 
 // MARK: - Preview
-struct MuniArrivalsView_Previews: PreviewProvider {
-    static var previews: some View {
+struct MuniArrivalsView_Previews: PreviewProvider
+{
+    static var previews: some View
+    {
         // Mock MuniTransitManager for Preview
         let mockManager = MuniTransitManager()
         mockManager.arrivalTimes = [

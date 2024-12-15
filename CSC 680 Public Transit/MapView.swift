@@ -8,7 +8,8 @@
 import SwiftUI
 import MapKit
 
-struct MapView: View {
+struct MapView: View
+{
     @EnvironmentObject var locationManager: LocationManager
     @State private var region = MKCoordinateRegion(
         center: CLLocationCoordinate2D(latitude: 37.7749, longitude: -122.4194), // Default: SF
@@ -16,19 +17,25 @@ struct MapView: View {
     )
     
 
-    var body: some View {
-        Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: locationManager.transitStops) { stop in
+    var body: some View
+    {
+        Map(coordinateRegion: $region, showsUserLocation: true, annotationItems: locationManager.transitStops)
+        {
+            stop in
             MapMarker(coordinate: stop.coordinate, tint: .blue)
         }
-        .onAppear {
+        .onAppear
+        {
             locationManager.requestLocation()
         }
         .edgesIgnoringSafeArea(.all)
     }
 }
 
-struct MapView_Previews: PreviewProvider {
-    static var previews: some View {
+struct MapView_Previews: PreviewProvider
+{
+    static var previews: some View
+    {
         MapView()
             .environmentObject(LocationManager()) // Provide a sample LocationManager
     }

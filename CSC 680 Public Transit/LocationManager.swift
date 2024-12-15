@@ -9,30 +9,35 @@ import Foundation
 import MapKit
 import CoreLocation
 
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate
+{
     private let locationManager = CLLocationManager()
     @Published var transitStops: [TransitStop] = []  // Published array to store transit stops
 
-    override init() {
+    override init()
+    {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
         locationManager.requestWhenInUseAuthorization()
     }
 
-    func requestLocation() {
+    func requestLocation()
+    {
         locationManager.requestLocation()  // Request a single location update
     }
 
     // CLLocationManager Delegate Method: Updates locations
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
+        if let location = locations.last
+        {
             fetchNearbyTransitStops(location: location)
         }
     }
 
     // CLLocationManager Delegate Method: Error Handling
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
+    {
         print("Location error: \(error.localizedDescription)")
     }
 
@@ -56,7 +61,8 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
 
             // Map each transit stop to the TransitStop model
             self.transitStops = response.mapItems.compactMap
-            { item in
+            {
+                item in
                 TransitStop(
                     id: item.name ?? UUID().uuidString, // Use the stop name as ID or generate a UUID
                     name: item.name ?? "Unknown Stop", // Fallback to "Unknown Stop" if name is nil
