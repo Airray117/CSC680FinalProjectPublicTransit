@@ -1,7 +1,8 @@
 import CoreLocation
 import Combine
 
-class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate {
+class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate
+{
     @Published var arrivalTimes: [MuniArrival] = []
     @Published var isFetchingData = false
     
@@ -12,38 +13,43 @@ class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate 
     private let apiBaseURL = "http://webservices.nextbus.com/service/publicJSONFeed"
     private let muniAgency = "sf-muni"
 
-    // MARK: - Initialization
-    override init() {
+    override init()
+    {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
     }
     
     // MARK: - Request Location Authorization
-    func requestLocationAuthorization() {
+    func requestLocationAuthorization()
+    {
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
     }
 
-    // MARK: - CLLocationManagerDelegate
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        if let location = locations.last {
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation])
+    {
+        if let location = locations.last
+        {
             print("Current location: \(location.coordinate.latitude), \(location.coordinate.longitude)")
             fetchNearestTransitStop(location: location.coordinate)
         }
         manager.stopUpdatingLocation()
     }
 
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error)
+    {
         print("Failed to get location: \(error.localizedDescription)")
     }
 
-    // MARK: - Fetch Nearest Transit Stop Based on Location
-    func fetchNearestTransitStop(location: CLLocationCoordinate2D) {
+    func fetchNearestTransitStop(location: CLLocationCoordinate2D)
+    {
         isFetchingData = true
         
         // Call the Muni API to fetch the stops
-        guard let url = URL(string: "\(apiBaseURL)?command=routeConfig&a=\(muniAgency)") else {
+        guard let url = URL(string: "\(apiBaseURL)?command=routeConfig&a=\(muniAgency)")
+        else
+        {
             print("Invalid API URL")
             return
         }
@@ -51,7 +57,8 @@ class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate 
         URLSession.shared.dataTaskPublisher(for: url)
             .map { $0.data }
             .decode(type: RouteConfigResponse.self, decoder: JSONDecoder())
-            .map { response in
+            .map
+            {response in
                 // Find the closest stop
                 let stops = response.routes.flatMap { $0.stops }
                 return self.findNearestStop(location: location, stops: stops)
@@ -59,7 +66,9 @@ class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate 
             .replaceError(with: nil)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] nearestStop in
-                guard let stop = nearestStop else {
+                guard let stop = nearestStop
+                else
+                {
                     print("No stops found nearby.")
                     self?.isFetchingData = false
                     return
@@ -70,11 +79,11 @@ class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate 
             .store(in: &cancellables)
     }
     
-    // MARK: - Fetch Arrival Times for a Stop
-    func fetchArrivalTimes(for stopId: String, stopName: String) {
+    func fetchArrivalTimes(for stopId: String, stopName: String)
+    {
         guard let url = URL(string: "\(apiBaseURL)?command=predictions&a=\(muniAgency)&stopId=\(stopId)") else {
-            print("Invalid API URL for predictions")
-            return
+        print("Invalid API URL for predictions")
+        return
         }
         
         URLSession.shared.dataTaskPublisher(for: url)
@@ -97,8 +106,9 @@ class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate 
     }
     
     // MARK: - Find Nearest Stop Logic
-    func findNearestStop(location: CLLocationCoordinate2D, stops: [Stop]) -> Stop? {
-        return stops.min(by: { stop1, stop2 in
+    func findNearestStop(location: CLLocationCoordinate2D, stops: [Stop]) -> Stop?
+    {
+        return stops.min(by:{ stop1, stop2 in
             let distance1 = location.distance(to: stop1.coordinate)
             let distance2 = location.distance(to: stop2.coordinate)
             return distance1 < distance2
@@ -107,7 +117,8 @@ class MuniTransitManager: NSObject, ObservableObject, CLLocationManagerDelegate 
 }
 
 // MARK: - Extensions for CLLocationCoordinate2D
-extension CLLocationCoordinate2D {
+extension CLLocationCoordinate2D
+{
     func distance(to coordinate: CLLocationCoordinate2D) -> CLLocationDistance {
         let loc1 = CLLocation(latitude: self.latitude, longitude: self.longitude)
         let loc2 = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
@@ -116,43 +127,52 @@ extension CLLocationCoordinate2D {
 }
 
 // MARK: - Data Models
-struct RouteConfigResponse: Codable {
+struct RouteConfigResponse: Codable
+{
     let routes: [Route]
 }
 
-struct Route: Codable {
+struct Route: Codable
+{
     let stops: [Stop]
 }
 
-struct Stop: Codable, Identifiable {
+struct Stop: Codable, Identifiable
+{
     let id: String
     let stopId: String
     let title: String
     let lat: String
     let lon: String
     
-    var coordinate: CLLocationCoordinate2D {
+    var coordinate: CLLocationCoordinate2D
+    {
         return CLLocationCoordinate2D(latitude: Double(lat) ?? 0, longitude: Double(lon) ?? 0)
     }
 }
 
-struct PredictionsResponse: Codable {
+struct PredictionsResponse: Codable
+{
     let predictions: [Prediction]
 }
 
-struct Prediction: Codable {
+struct Prediction: Codable
+{
     let direction: Direction
 }
 
-struct Direction: Codable {
+struct Direction: Codable
+{
     let predictions: [ArrivalPrediction]
 }
 
-struct ArrivalPrediction: Codable {
+struct ArrivalPrediction: Codable
+{
     let minutes: Int
 }
 
-struct MuniArrival: Identifiable {
+struct MuniArrival: Identifiable
+{
     let id = UUID()
     let stopId: String
     let stopName: String

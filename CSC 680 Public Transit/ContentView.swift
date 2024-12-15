@@ -14,7 +14,9 @@ struct ContentView: View
             ZStack
             {
                 MapWithPinView(pinLocation: $selectedPinLocation)
-                    .onChange(of: selectedPinLocation) { newValue in
+                    .onChange(of: selectedPinLocation)
+                {
+                    newValue in
                         // Update manager with selected location
                         if let safeLocation = Optional(newValue)
                         {
