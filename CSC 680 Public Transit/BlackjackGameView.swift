@@ -7,7 +7,8 @@
 
 import SwiftUI
 
-class BlackjackGame: ObservableObject {
+class BlackjackGame: ObservableObject
+{
     @Published var playerHand: [Int] = []
     @Published var dealerHand: [Int] = []
     @Published var gameStatus: String = ""
@@ -16,42 +17,58 @@ class BlackjackGame: ObservableObject {
         newGame()
     }
 
-    func newGame() {
+    func newGame()
+    {
         playerHand = [drawCard(), drawCard()]
         dealerHand = [drawCard()]
         gameStatus = ""
     }
 
-    func drawCard() -> Int {
+    func drawCard() -> Int
+    {
         Int.random(in: 1...11)
     }
 
-    func hit() {
+    func hit()
+    {
         playerHand.append(drawCard())
         checkGameStatus()
     }
 
-    func stand() {
-        while dealerHand.reduce(0, +) < 17 {
+    func stand()
+    {
+        while dealerHand.reduce(0, +) < 17
+        {
             dealerHand.append(drawCard())
         }
         checkGameStatus()
     }
 
-    func checkGameStatus() {
+    func checkGameStatus()
+    {
         let playerScore = playerHand.reduce(0, +)
         let dealerScore = dealerHand.reduce(0, +)
 
-        if playerScore > 21 {
+        if playerScore > 21
+        {
             gameStatus = "Bust! Dealer Wins"
-        } else if dealerScore > 21 {
+        }
+        else if dealerScore > 21
+        {
             gameStatus = "Dealer Busts! You Win"
-        } else if dealerScore >= 17 {
-            if playerScore > dealerScore {
+        }
+        else if dealerScore >= 17
+        {
+            if playerScore > dealerScore
+            {
                 gameStatus = "You Win!"
-            } else if playerScore == dealerScore {
+            }
+            else if playerScore == dealerScore
+            {
                 gameStatus = "It's a Tie!"
-            } else {
+            }
+            else
+            {
                 gameStatus = "Dealer Wins"
             }
         }
@@ -61,8 +78,10 @@ class BlackjackGame: ObservableObject {
 struct BlackjackGameView: View {
     @StateObject private var game = BlackjackGame()
 
-    var body: some View {
-        VStack {
+    var body: some View
+    {
+        VStack
+        {
             Text("Dealer's Hand: \(game.dealerHand.reduce(0, +))")
                 .font(.headline)
             HStack {
@@ -90,14 +109,16 @@ struct BlackjackGameView: View {
             Spacer().frame(height: 20)
 
             HStack {
-                Button(action: { game.hit() }) {
+                Button(action: { game.hit() })
+                {
                     Text("Hit")
                         .padding()
                         .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
-                Button(action: { game.stand() }) {
+                Button(action: { game.stand() })
+                {
                     Text("Stand")
                         .padding()
                         .background(Color.green)
@@ -108,7 +129,8 @@ struct BlackjackGameView: View {
 
             Spacer()
 
-            Button(action: { game.newGame() }) {
+            Button(action: { game.newGame() })
+            {
                 Text("New Game")
                     .padding()
                     .background(Color.orange)
@@ -120,8 +142,10 @@ struct BlackjackGameView: View {
     }
 }
 
-struct BlackjackGameView_Previews: PreviewProvider {
-    static var previews: some View {
+struct BlackjackGameView_Previews: PreviewProvider
+{
+    static var previews: some View
+    {
         BlackjackGameView()
     }
 }
