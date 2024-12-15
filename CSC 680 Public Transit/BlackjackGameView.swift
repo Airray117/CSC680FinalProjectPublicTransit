@@ -7,12 +7,14 @@
 
 import SwiftUI
 
+
 class BlackjackGame: ObservableObject
 {
     @Published var playerHand: [Int] = []
     @Published var dealerHand: [Int] = []
     @Published var gameStatus: String = ""
-
+    @Published var gameOver: Bool = false
+    
     init()
     {
         newGame()
@@ -23,6 +25,7 @@ class BlackjackGame: ObservableObject
         playerHand = [drawCard(), drawCard()]
         dealerHand = [drawCard()]
         gameStatus = ""
+        gameOver = false // Reset game state
     }
 
     func drawCard() -> Int
@@ -32,12 +35,14 @@ class BlackjackGame: ObservableObject
 
     func hit()
     {
+        guard !gameOver else { return }
         playerHand.append(drawCard())
         checkGameStatus()
     }
 
     func stand()
     {
+        guard !gameOver else { return }
         while dealerHand.reduce(0, +) < 17
         {
             dealerHand.append(drawCard())
@@ -53,10 +58,12 @@ class BlackjackGame: ObservableObject
         if playerScore > 21
         {
             gameStatus = "Bust! Dealer Wins"
+            gameOver = true
         }
         else if dealerScore > 21
         {
             gameStatus = "Dealer Busts! You Win"
+            gameOver = true
         }
         else if dealerScore >= 17
         {
@@ -72,11 +79,13 @@ class BlackjackGame: ObservableObject
             {
                 gameStatus = "Dealer Wins"
             }
+            gameOver = true
         }
     }
 }
 
-struct BlackjackGameView: View {
+struct BlackjackGameView: View
+{
     @StateObject private var game = BlackjackGame()
 
     var body: some View
@@ -85,9 +94,15 @@ struct BlackjackGameView: View {
         {
             Text("Dealer's Hand: \(game.dealerHand.reduce(0, +))")
                 .font(.headline)
-            HStack {
-                ForEach(game.dealerHand, id: \.self) { card in
+            HStack
+            {
+                ForEach(game.dealerHand, id: \.self)
+                {
+                    card in
                     Text("\(card)")
+                        .padding(5)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(4)
                 }
             }
 
@@ -95,20 +110,27 @@ struct BlackjackGameView: View {
 
             Text("Your Hand: \(game.playerHand.reduce(0, +))")
                 .font(.headline)
-            HStack {
+            HStack
+            {
                 ForEach(game.playerHand, id: \.self) { card in
                     Text("\(card)")
+                        .padding(5)
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(4)
                 }
             }
 
             Spacer().frame(height: 20)
 
+      
             Text(game.gameStatus)
                 .font(.title2)
                 .foregroundColor(.red)
+                .padding()
 
             Spacer().frame(height: 20)
 
+          
             HStack {
                 Button(action: { game.hit() })
                 {
@@ -118,6 +140,8 @@ struct BlackjackGameView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
+                .disabled(game.gameOver)
+
                 Button(action: { game.stand() })
                 {
                     Text("Stand")
@@ -126,10 +150,12 @@ struct BlackjackGameView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                 }
+                .disabled(game.gameOver)
             }
 
             Spacer()
 
+         
             Button(action: { game.newGame() })
             {
                 Text("New Game")
@@ -142,6 +168,7 @@ struct BlackjackGameView: View {
         .padding()
     }
 }
+
 
 struct BlackjackGameView_Previews: PreviewProvider
 {
